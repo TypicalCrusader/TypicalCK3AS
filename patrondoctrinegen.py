@@ -1,6 +1,6 @@
 #/usr/bin/python3
 # Made by TypicalCrusader
-# Updated for Publishing by RadSquirrel
+# For use with Elder Kings II Patron Gods Mechanic
 
 import sys, os
 
@@ -16,19 +16,19 @@ def main():
     if doctrine_name_1:
         doctrine_name_2 = input("input the name of god ie: father_of_threads\n")
         if doctrine_name_2 and not "high_god" or "devil" in doctrine_name_1:
-            doctrine_name_3 = input("input whether the good is good or evil (good/evil)")
+            doctrine_name_3 = input("input whether the good is good or evil (good/evil)\n")
             if doctrine_name_3:
                 triggerinos = input("write any additional trigger like flag:doctrine_doctrine_polytheism = "
-                                    "{ is_in_list = selected_doctrines }")
+                                    "{ is_in_list = selected_doctrines }\n")
         else:
             triggerinos = input("write any additional trigger like flag:doctrine_doctrine_polytheism = "
-                                "{ is_in_list = selected_doctrines }")
+                                "{ is_in_list = selected_doctrines }\n")
             doctrine_name_3 = ""
         if triggerinos and "devil" or "war_god" in doctrine_name_1 or "main_god" in doctrine_name_1 or "fate_god" \
                 in doctrine_name_1 :
-            virtue = input("write one virtue trait")
+            virtue = input("write one virtue trait\n")
             if virtue:
-                sin = input("write one sin trait")
+                sin = input("write one sin trait\n")
 
                 if not doctrine_name_3:
                     output_string_1 = f"\n\tpantheon_{doctrine_name_1}_{doctrine_name_2} = " \
@@ -159,5 +159,7 @@ def main():
                         loc_file.writelines(output_loc_1)
                         print("created doctrine loc file")
                         loc_file.close()
+
+
 if __name__ == "__main__":
     main()
