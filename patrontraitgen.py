@@ -1,5 +1,7 @@
 #/usr/bin/python3
 # Made by TypicalCrusader
+# Patron Mechanic Automation Script
+# Part of Typical's Crusader Kings III Automation Scripts (TCK3AS)
 # For use with Elder Kings II Patron Gods Mechanic
 
 #TODO:Scripted Triggers appending, patron god valid string to be used, scriped effects
@@ -19,7 +21,7 @@ def main():
 
     # needed for later
     pathname = os.path.dirname(sys.argv[0])
-    
+
     index_of_trait = int(input("Write an trait index\nNote:must be an intiger\n"))
     if index_of_trait >= 1:
         name_of_god = input("Write a name of the god in lowercase if the god name has space then repalce space with _\nie:"

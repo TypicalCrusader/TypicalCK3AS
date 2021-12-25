@@ -1,6 +1,7 @@
 #/usr/bin/python3
 # Made by TypicalCrusader
-# For use with Elder Kings II Patron Gods Mechanic
+# Patron Doctrine Automation Script
+# Part of Typical's Crusader Kings III Automation Scripts (TCK3AS)
 
 import sys, os
 
