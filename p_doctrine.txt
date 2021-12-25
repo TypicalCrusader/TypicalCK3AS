@@ -1,0 +1,14 @@
+﻿
+	pantheon_aaaaaa_aaaaaa = {
+		can_pick = {
+			aaaa
+		}
+		traits = {
+			virtues = {
+				a
+			}
+			sins = {
+				a
+			}
+		}
+	}
