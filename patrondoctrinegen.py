@@ -5,7 +5,7 @@
 # For use with Elder Kings II Patron Gods Mechanic
 
 
-#TODO: Fix the
+#TODO: Fix the if statement "doctrine_name_2 and not"
 
 import sys, os
 
