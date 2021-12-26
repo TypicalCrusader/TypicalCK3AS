@@ -4,7 +4,10 @@
 # Part of Typical's Crusader Kings III Automation Scripts (TCK3AS)
 # For use with Elder Kings II Patron Gods Mechanic
 
-#TODO:scriped effects
+# POSSIBLE ISSUES
+# 1. Scripts imples that trait name is p_god_(god_name) so you might need to change output lines,
+#   Possible fix remove _god part and just write it while writing name of the god
+
 
 import sys, os
 
