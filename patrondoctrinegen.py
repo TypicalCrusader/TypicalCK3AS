@@ -2,7 +2,7 @@
 # Made by TypicalCrusader
 # Patron Doctrine Automation Script
 # Part of Typical's Crusader Kings III Automation Scripts (TCK3AS)
-# For use with Elder Kings II Patron Gods Mechanic
+# For use with Elder Kings II Patron Gods Mechanic combined with The Four Nations CK3 implementation of it
 
 
 #TODO: Fix the if statement "doctrine_name_2 and not"
