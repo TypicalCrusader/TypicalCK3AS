@@ -5,7 +5,7 @@
 # For use with Elder Kings II Patron Gods Mechanic
 
 # POSSIBLE ISSUES
-# 1. Scripts imples that trait name is p_god_(god_name) so you might need to change output lines,
+# 1. Script imples that trait name is p_god_(god_name) so you might need to change output lines,
 #   Possible fix remove _god part and just write it while writing name of the god
 
 
