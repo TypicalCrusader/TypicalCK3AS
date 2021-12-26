@@ -4,7 +4,7 @@
 # Part of Typical's Crusader Kings III Automation Scripts (TCK3AS)
 # For use with Elder Kings II Patron Gods Mechanic
 
-#TODO:Scripted Triggers appending, patron god valid string to be used, scriped effects
+#TODO:scriped effects
 
 import sys, os
 
@@ -24,10 +24,12 @@ def main():
 
     index_of_trait = int(input("Write an trait index\nNote:must be an intiger\n"))
     if index_of_trait >= 1:
-        name_of_god = input("Write a name of the god in lowercase if the god name has space then repalce space with _\nie:"
-                            "Father of Threads will become father_of_threads\n")
+        name_of_god_loc = input("Write a name of the god in a same way you would localise it\nie: Father of Threads\n")
+        name_of_god = name_of_god_loc.replace(" ", "_")
+        name_of_god = name_of_god.strip().lower()
+
         # fuck python for not appending this otherwise
-        # trait strings
+        # Trait Strings
         output_line_1 = f"p_god_{name_of_god} = {left_curly_brace}\n\tindex = {index_of_trait}"
         output_line_2 = f"\n\tshown_in_ruler_designer = no\n\n"
         output_line_3 = f"\n\tname = {left_curly_brace}\n\t\tfirst_valid = {left_curly_brace}" \
@@ -64,9 +66,9 @@ def main():
                         f"\n\t\t\tdesc = p_god_{name_of_god}.dds" \
                         f"\n\t\t{right_curly_brace}" \
                         f"\n\t{right_curly_brace}"
-        output_line_6 = f"\n{right_curly_brace}"
+        output_line_6 = f"\n{right_curly_brace}\n\n"
 
-        # cus loc string
+        # Custom Localisation Strings
         output_custom_loc_get_god = f"get_god_{name_of_god} = {left_curly_brace}"\
                                     f"\n\ttype = character #replace faith"\
                                     f"\n\ttext = {left_curly_brace}"\
@@ -74,33 +76,45 @@ def main():
                                     f"\n\t\tfallback = yes"\
                                     f"\n\t\tlocalization_key = \"_god_{name_of_god}\""\
                                     f"\n\t{right_curly_brace}"\
-                                    f"\n{right_curly_brace}"
-        name_of_god_loc = name_of_god.replace("_", " ")
-        # loc strings
-        output_localisation = f"l_english:" \
-                              f"\n trait_p_god_{name_of_god}_base: \"{name_of_god_loc}\"" \
-                              f"\n trait_p_god_{name_of_god}: \"{name_of_god_loc}\"" \
-                              f"\n trait_p_god_{name_of_god}_null:\"\"" \
-                              f"\n trait_p_god_{name_of_god}_character_desc: \"\"" \
-                              f"\n\n#Custom Loc\n" \
-                              f"\n god_{name_of_god}: \"{name_of_god_loc}\"" \
-                              f"\n god_god_{name_of_god}_name: \"{name_of_god_loc}\"" \
-                              f"\n desc_god_{name_of_god}: \"\""
+                                    f"\n{right_curly_brace}\n\n"
 
-        # Scripted Trigger strings
+        # Localisation Strings
+        output_localisation = f"l_english:"
+        output_localisation_append = f"\n #Trait Loc"\
+                                     f"\n trait_p_god_{name_of_god}_base: \"{name_of_god_loc}\"" \
+                                     f"\n trait_p_god_{name_of_god}: \"{name_of_god_loc}\"" \
+                                     f"\n trait_p_god_{name_of_god}_null:\"\"" \
+                                     f"\n trait_p_god_{name_of_god}_character_desc: \"\"\n" \
+                                     f"\n #Custom Loc" \
+                                     f"\n god_{name_of_god}: \"{name_of_god_loc}\"" \
+                                     f"\n god_god_{name_of_god}_name: \"{name_of_god_loc}\"" \
+                                     f"\n desc_god_{name_of_god}: \"\"\n"
+
+        # Scripted Triggers strings
         patron_trait_master_trigger_string_write = f"patron_trait_master_trigger = {left_curly_brace}" \
                                                    f"\n\tOR = {left_curly_brace}" \
+                                                   f"\n\t\t#POINTER FOR GENERATOR" \
                                                    f"\n\t\t$TRIGGER$ = {left_curly_brace} TRAIT = _god_{name_of_god}" \
                                                    f"{right_curly_brace}" \
                                                    f"\n\t{right_curly_brace}" \
                                                    f"\n{right_curly_brace}"
-        patron_trait_master_trigger_string_append = f"\n\t\t$TRIGGER$ = {left_curly_brace} TRAIT = _god_{name_of_god}" \
+        patron_trait_master_trigger_string_append = f"\t$TRIGGER$ = {left_curly_brace} TRAIT = _god_{name_of_god}" \
                                                     f"{right_curly_brace}"
-
-        patron_god_name_valid = f"patron_god_{name_of_god}_valid = {left_curly_brace}" \
+        patron_god_name_valid = f"\n\npatron_god_{name_of_god}_valid = {left_curly_brace}" \
                                 f"\n\tpatron_PATRON_valid = {left_curly_brace} PATRON = god_{name_of_god} " \
                                 f"{right_curly_brace}" \
                                 f"\n{right_curly_brace}"
+
+        # Scripted Effects strings
+        patron_trait_master_effect_string_write = f"patron_trait_master_effect = {left_curly_brace}" \
+                                                  f"\n\tOR = {left_curly_brace}" \
+                                                  f"\n\t\t#POINTER FOR GENERATOR" \
+                                                  f"\n\t\t$EFFECT$ = {left_curly_brace} TRAIT = _god_{name_of_god}" \
+                                                  f"{right_curly_brace}" \
+                                                  f"\n\t{right_curly_brace}" \
+                                                  f"\n{right_curly_brace}"
+        patron_trait_master_effect_string_append = f"\t$EFFECT$ = {left_curly_brace} TRAIT = _god_{name_of_god}" \
+                                                   f"{right_curly_brace}"
 
         if not os.path.exists(pathname + "/p_traits.txt"):
             with open('p_traits.txt', 'x', encoding="utf_8_sig") as output_file:
@@ -117,9 +131,13 @@ def main():
                 print("written loc file")
                 loc_file.close()
             with open('p_scripted_triggers.txt', 'x', encoding="utf_8_sig") as trigger_file:
-                trigger_file.writelines([patron_trait_master_trigger_string_write])
+                trigger_file.writelines([patron_trait_master_trigger_string_write, patron_god_name_valid])
                 print("written trigger file")
                 trigger_file.close()
+            with open('p_scripted_effects.txt', 'x', encoding="utf_8_sig") as effect_file:
+                effect_file.writelines([patron_trait_master_effect_string_write])
+                print("written effect file")
+                effect_file.close()
         elif os.path.exists(pathname + "/p_traits.txt"):
             # Capture if the user wants to overwrite the whole file
             bool_for_write = input("The Output file already exists do you wish to override it? ")
@@ -144,13 +162,17 @@ def main():
                             print("written cus loc file")
                             cus_loc_file.close()
                         with open('p_traits_loc_l_english.yml', 'w', encoding="utf_8_sig") as loc_file:
-                            loc_file.writelines([output_localisation])
+                            loc_file.writelines([output_localisation, output_localisation_append])
                             print("written loc file")
                             loc_file.close()
                         with open('p_scripted_triggers.txt', 'w', encoding="utf_8_sig") as trigger_file:
-                            trigger_file.writelines([patron_trait_master_trigger_string_write])
+                            trigger_file.writelines([patron_trait_master_trigger_string_write, patron_god_name_valid])
                             print("written trigger file")
                             trigger_file.close()
+                        with open('p_scripted_effects.txt', 'w', encoding="utf_8_sig") as effect_file:
+                            effect_file.writelines([patron_trait_master_effect_string_write])
+                            print("written effect file")
+                            effect_file.close()
                         break
 
                     elif bool_for_write == "n":
@@ -164,20 +186,34 @@ def main():
                             print("written cus loc file")
                             cus_loc_file.close()
                         with open('p_traits_loc_l_english.yml', 'a', encoding="utf_8_sig") as loc_file:
-                            loc_file.writelines([output_localisation])
+                            loc_file.writelines([output_localisation_append])
                             print("written loc file")
                             loc_file.close()
                         with open('p_scripted_triggers.txt', 'r+', encoding="utf_8_sig") as trigger_file:
                             lines = trigger_file.readlines()
                             for i, line in enumerate(lines):
-                                if line.startswith('\n\t\t$TRIGGER$'):
-                                    print("Trigger found")
-                                    lines[i] = lines[i].strip() + f'\n{patron_trait_master_trigger_string_append}'
+                                if line.startswith('\t\t#POINTER FOR GENERATOR'):
+                                    print("Pointer found")
+                                    lines[i] = lines[i] + f'\t{patron_trait_master_trigger_string_append}\n'
                             trigger_file.seek(0)
                             for line in lines:
                                 trigger_file.write(line)
                             print("written trigger file")
                             trigger_file.close()
+                        with open('p_scripted_triggers.txt', 'a', encoding="utf_8_sig") as trigger_file_2:
+                            trigger_file_2.writelines([patron_god_name_valid])
+                            trigger_file_2.close()
+                        with open('p_scripted_effects.txt', 'r+', encoding="utf_8_sig") as effect_file:
+                            lines = effect_file.readlines()
+                            for i, line in enumerate(lines):
+                                if line.startswith('\t\t#POINTER FOR GENERATOR'):
+                                    print("Pointer found")
+                                    lines[i] = lines[i] + f'\t{patron_trait_master_effect_string_append}\n'
+                            effect_file.seek(0)
+                            for line in lines:
+                                effect_file.write(line)
+                            print("written effect file")
+                            effect_file.close()
                         break
                     else:
                         bool_for_write = "Answer is invalid"
@@ -193,13 +229,17 @@ def main():
                         print("written cus loc file")
                         cus_loc_file.close()
                     with open('p_traits_loc_l_english.yml', 'w', encoding="utf_8_sig") as loc_file:
-                        loc_file.writelines([output_localisation])
+                        loc_file.writelines([output_localisation, output_localisation_append])
                         print("written loc file")
                         loc_file.close()
                     with open('p_scripted_triggers.txt', 'w', encoding="utf_8_sig") as trigger_file:
-                        trigger_file.writelines([patron_trait_master_trigger_string_write])
+                        trigger_file.writelines([patron_trait_master_trigger_string_write, patron_god_name_valid])
                         print("written trigger file")
                         trigger_file.close()
+                    with open('p_scripted_effects.txt', 'w', encoding="utf_8_sig") as effect_file:
+                        effect_file.writelines([patron_trait_master_effect_string_write])
+                        print("written effect file")
+                        effect_file.close()
 
                 elif bool_for_write == "n":
                     with open('p_traits.txt', 'a', encoding="utf_8_sig") as output_file:
@@ -212,20 +252,34 @@ def main():
                         print("written cus loc file")
                         cus_loc_file.close()
                     with open('p_traits_loc_l_english.yml', 'a', encoding="utf_8_sig") as loc_file:
-                        loc_file.writelines([output_localisation])
+                        loc_file.writelines([output_localisation_append])
                         print("written loc file")
                         loc_file.close()
                     with open('p_scripted_triggers.txt', 'r+', encoding="utf_8_sig") as trigger_file:
                         lines = trigger_file.readlines()
                         for i, line in enumerate(lines):
-                            if line.startswith('\n\t\t$TRIGGER$'):
-                                print("Trigger found")
-                                lines[i] = lines[i].strip() + f'\n{patron_trait_master_trigger_string_append}'
+                            if line.startswith('\t\t#POINTER FOR GENERATOR'):
+                                print("Pointer found")
+                                lines[i] = lines[i] + f'\t{patron_trait_master_trigger_string_append}\n'
                         trigger_file.seek(0)
                         for line in lines:
                             trigger_file.write(line)
                         print("written trigger file")
                         trigger_file.close()
+                    with open('p_scripted_triggers.txt', 'a', encoding="utf_8_sig") as trigger_file_2:
+                        trigger_file_2.writelines([patron_god_name_valid])
+                        trigger_file_2.close()
+                    with open('p_scripted_effects.txt', 'r+', encoding="utf_8_sig") as effect_file:
+                        lines = effect_file.readlines()
+                        for i, line in enumerate(lines):
+                            if line.startswith('\t\t#POINTER FOR GENERATOR'):
+                                print("Pointer found")
+                                lines[i] = lines[i] + f'\t{patron_trait_master_effect_string_append}\n'
+                        effect_file.seek(0)
+                        for line in lines:
+                            effect_file.write(line)
+                        print("written effect file")
+                        effect_file.close()
 
 
 if __name__ == "__main__":
