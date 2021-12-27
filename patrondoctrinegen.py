@@ -4,9 +4,6 @@
 # Part of Typical's Crusader Kings III Automation Scripts (TCK3AS)
 # For use with Elder Kings II Patron Gods Mechanic combined with The Four Nations CK3 implementation of it
 
-# TODO:
-#      Make it clear that not overriding it will append it, since appending seems the more likely choice every time
-#      BUG: if you do "high_god" or "devil" it was not assigning output 2,3,4,5. Currently blank.
 import sys, os
 
 
@@ -40,7 +37,16 @@ def get_input_from_user():
     gods_for_doctrine_2_if = ["high_god", "devil"]
 
     if doctrine_name_2 and not any(god in doctrine_name_1 for god in gods_for_doctrine_2_if):
+
         doctrine_name_3 = input("input whether the good is good or evil (good/evil)\n")
+        doctrine_name_3 = doctrine_name_3.strip()[:4].lower()
+
+        if doctrine_name_3 != "good" and doctrine_name_3 != "evil":
+            while doctrine_name_3 != "good" and doctrine_name_3 != "evil":
+                print("Invalid input, please try again")
+                doctrine_name_3 = input("input whether the good is good or evil (good/evil)\n")
+                doctrine_name_3 = doctrine_name_3.strip()[:4].lower()
+
     else:
         doctrine_name_3 = ""
 
@@ -67,11 +73,8 @@ def get_output_strings_for_writing(doctrine_name_1, doctrine_name_2, doctrine_na
     if not doctrine_name_3:
         output_string_1 = f"\n\tpantheon_{doctrine_name_1}_{doctrine_name_2} = " \
                           f"{left_curly_brace}"
-
-        output_string_2 = ""
         output_string_3 = ""
         output_string_4 = ""
-        output_string_5 = ""
 
     else:
         output_string_1 = f"\n\tpantheon_{doctrine_name_1}_{doctrine_name_2}_{doctrine_name_3} = " \
@@ -95,10 +98,10 @@ def get_output_strings_for_writing(doctrine_name_1, doctrine_name_2, doctrine_na
         else:
             output_string_4 = ""
 
-        output_string_2 = f"\n\t\tcan_pick = {left_curly_brace}" \
+    output_string_2 = f"\n\t\tcan_pick = {left_curly_brace}" \
                           f"\n\t\t\t{triggerinos}" \
                           f"\n\t\t{right_curly_brace}"
-        output_string_5 = f"\n\t{right_curly_brace}"
+    output_string_5 = f"\n\t{right_curly_brace}"
 
     return [output_string_1, output_string_2, output_string_3, output_string_4, output_string_5]
 
@@ -138,7 +141,9 @@ def write_files_to_system(output_strings, output_locs):
     # If the path does exist, ask the user what to do
     elif os.path.exists(pathname + "/p_doctrine.txt"):
         # Capture if the user wants to overwrite the whole file
-        bool_for_write = input("The Output file already exists do you wish to override it y/n\n")
+        bool_for_write = input("The Output file already exists do you wish to override it y/n\n"
+                               "y: will overwrite the whole file\n"
+                               "n: will append to the file\n")
         # take only the first letter of the answer and convert it to lowercase for easy comparison
         bool_for_write = bool_for_write.strip()[:1].lower()
 
@@ -147,7 +152,9 @@ def write_files_to_system(output_strings, output_locs):
             # Since the user didn't input y or n, keep capturing until they give you an answer
             while not bool_for_write == "y" and not bool_for_write == "n":
                 print("Invalid answer, please try again.")
-                bool_for_write = input("The Output file already exists do you wish to override it?\n")
+                bool_for_write = input("The Output file already exists do you wish to override it y/n\n"
+                                       "y: will overwrite the whole file\n"
+                                       "n: will append to the file\n")
                 # take only the first letter of the answer and convert it to lowercase for easy comparison
                 bool_for_write = bool_for_write.strip()[:1].lower()
 
