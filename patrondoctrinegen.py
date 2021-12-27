@@ -22,7 +22,8 @@ def main():
         name_of_god_loc = input("input the name of god ie: Father of Threads\n")
         doctrine_name_2 = name_of_god_loc.replace(" ", "_")
         doctrine_name_2 = doctrine_name_2.strip().lower()
-        if doctrine_name_2 and not "high_god" or not "devil" in doctrine_name_1:
+        gods_for_doctrine_2_if = ["high_god", "devil"]
+        if doctrine_name_2 and not any(god in doctrine_name_1 for god in gods_for_doctrine_2_if):
             doctrine_name_3 = input("input whether the good is good or evil (good/evil)\n")
             if doctrine_name_3:
                 triggerinos = input("write any additional trigger like flag:doctrine_doctrine_polytheism = "
@@ -31,8 +32,8 @@ def main():
             triggerinos = input("write any additional trigger like flag:doctrine_doctrine_polytheism = "
                                 "{ is_in_list = selected_doctrines }\n")
             doctrine_name_3 = ""
-        if triggerinos and "devil" or "war_god" or "main_god" \
-                or "fate_god" in doctrine_name_1:
+        gods_for_triggerinos_if = ["devil", "war_god", "main_god", "fate_god"]
+        if triggerinos and not any(god in doctrine_name_1 for god in gods_for_triggerinos_if):
             virtue = input("write one virtue trait\n")
             if virtue:
                 sin = input("write one sin trait\n")
