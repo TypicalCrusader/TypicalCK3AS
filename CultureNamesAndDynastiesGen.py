@@ -253,7 +253,7 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
     output_lines.append("")
 
     # Dynasty Names
-    output_lines.append("\t\tcadet_dynasty_names = {")
+    output_lines.append("\t\tdynasty_names = {")
     for item in dynasty_names:
         output_lines.append(f"\t\t\t\"dynn_{item}\"")
     output_lines.append("\t\t}")
