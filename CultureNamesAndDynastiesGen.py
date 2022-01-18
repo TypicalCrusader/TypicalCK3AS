@@ -6,8 +6,6 @@
 # todo Something for ethnicities. Maybe ask if they want to do ethnicities, and have them type the item, then the weight
 # todo make name generation cutoff per line "smart" @ 115 characters max
 # todo Allow some sort of rng generation of mercenary company names
-# todo dynasty_name_first option
-# todo dynasty_title_names option
 # todo dynasty_of_location_prefix option
 # todo graphical cultures inside of cultures
 # todo mercenary names inside of cultures
@@ -58,7 +56,9 @@ def create_culture():
     # Read female_names file
     female_names = read_input_file(female_names_file)
     # Ask for input on found_name_dynasties
-    found_name_dynasties = found_name_dynasties_option()
+    founder_named_dynasties = founder_named_dynasties_option()
+    dynasty_title_names = dynasty_title_names_option()
+    dynasty_name_first = dynasty_name_first_option()
     # Ask for input on patronyms
     # patronyms = get_patronyms_options()
     # Ask for input on Ethnicities
@@ -66,7 +66,9 @@ def create_culture():
     # Generate code output for file
     output_lines = get_output_lines(culture_name, culture_color, dynasty_names, male_names,
                                     female_names, culture_group, graphical_cultures, mercenary_names,
-                                    founder_named_dynasties=found_name_dynasties)
+                                    founder_named_dynasties=founder_named_dynasties,
+                                    dynasty_title_names=dynasty_title_names,
+                                    dynasty_name_first=dynasty_name_first)
 
     # Write code to file
     write_to_file(output_lines, culture_group)
@@ -200,13 +202,46 @@ def get_culture_color() -> str:
     return culture_color
 
 
-def found_name_dynasties_option() -> bool:
-    yn = input("Do you want found_name_dynasties? (y)/(n)")
-    if yn[:1].lower() == "y":
-        found_name_dynasties = True
-    else:
-        found_name_dynasties = False
-    return found_name_dynasties
+def founder_named_dynasties_option() -> bool:
+    founder_named_dynasties = None
+    while founder_named_dynasties is None:
+        yn = input("Do you want founder_named_dynasties? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            founder_named_dynasties = True
+        elif yn[:1].lower() == "d":
+            print("Property Description:\n"
+                  "Optional (default is no), uses dynasty name rather than title name when appropriate")
+        else:
+            founder_named_dynasties = False
+    return founder_named_dynasties
+
+
+def dynasty_name_first_option() -> bool:
+    dynasty_name_first = None
+    while dynasty_name_first is None:
+        yn = input("Do you want dynasty_name_first option? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            dynasty_name_first = True
+        elif yn[:1].lower() == "d":
+            print("Property Description:\n"
+                  "Optional (default is no), dynasty name comes before given name (Far-East Style)")
+        else:
+            dynasty_name_first = False
+    return dynasty_name_first
+
+
+def dynasty_title_names_option() -> bool:
+    dynasty_title_names = None
+    while dynasty_title_names is None:
+        yn = input("Do you want dynasty_title_names? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            dynasty_title_names = True
+        elif yn[:1].lower() == "d":
+            print("Property Description:\n"
+                  "Optional (default is no), uses dynasty name rather than title name when appropriate")
+        else:
+            dynasty_title_names = False
+    return dynasty_title_names
 
 
 def get_patronyms_options():
@@ -220,7 +255,8 @@ def get_ethnicities_options():
 def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[str], male_names: list[str],
                      female_names: list[str], group_culture: str = None, graphical_cultures: list = None,
                      mercenary_names: list = None, ethnicities: list = None,
-                     founder_named_dynasties: bool = None) -> list[str]:
+                     founder_named_dynasties: bool = None, dynasty_name_first: bool = None,
+                     dynasty_title_names: bool = None) -> list[str]:
     # Quick note about curly braces and strings. inside a normal string, curly braces are curly braces
     # However inside formatted strings (f'') and (f"") curly braces ({}) are special.
     # You can bypass the restrictions by doing a double curly brace ({{ or }})
@@ -284,9 +320,15 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
 
     # Patronym Options for later...
 
-    # Dynasty Name Options
+    # Name display options
     if founder_named_dynasties:
         output_lines.append("\t\tfounder_named_dynasties = yes")
+
+    if dynasty_title_names:
+        output_lines.append("\t\tdynasty_title_names = yes")
+
+    if dynasty_name_first:
+        output_lines.append("\t\tdynasty_name_first = yes")
 
     # Ethnicity Options
     if ethnicities:
