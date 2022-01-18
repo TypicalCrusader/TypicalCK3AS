@@ -6,7 +6,6 @@
 # todo Something for ethnicities. Maybe ask if they want to do ethnicities, and have them type the item, then the weight
 # todo make name generation cutoff per line "smart" @ 115 characters max
 # todo Allow some sort of rng generation of mercenary company names
-# todo dynasty_of_location_prefix option
 # todo graphical cultures inside of cultures
 # todo mercenary names inside of cultures
 
@@ -57,6 +56,7 @@ def create_culture():
     female_names = read_input_file(female_names_file)
     # Ask for input on found_name_dynasties
     dynasty_of_location_prefix = dynasty_of_location_prefix_option()
+    bastard_dynasty_prefix = bastard_dynasty_prefix_option()
     founder_named_dynasties = founder_named_dynasties_option()
     dynasty_title_names = dynasty_title_names_option()
     dynasty_name_first = dynasty_name_first_option()
@@ -70,7 +70,8 @@ def create_culture():
                                     founder_named_dynasties=founder_named_dynasties,
                                     dynasty_title_names=dynasty_title_names,
                                     dynasty_name_first=dynasty_name_first,
-                                    dynasty_of_location_prefix=dynasty_of_location_prefix)
+                                    dynasty_of_location_prefix=dynasty_of_location_prefix,
+                                    bastard_dynasty_prefix=bastard_dynasty_prefix)
 
     # Write code to file
     write_to_file(output_lines, culture_group)
@@ -207,10 +208,10 @@ def get_culture_color() -> str:
 def dynasty_of_location_prefix_option() -> str:
     yn = None
     while yn is None:
-        yn = input("Do you want a dynasty_of_location_prefix? (y)/(n), (d) for description")
-        if yn[:1].lower() == "y":
+        ynd = input("Do you want a dynasty_of_location_prefix? (y)/(n), (d) for description")
+        if ynd[:1].lower() == "y":
             yn = True
-        elif yn[:1].lower() == "d":
+        elif ynd[:1].lower() == "d":
             print("Property Description: \n"
                   "Cultural equivalent of 'of', when followed by a placename, e.g "
                   "- Geoffrey 'of' Monmouth, Chrétien 'de' Troyes (Christian 'of' Troyes)")
@@ -222,6 +223,25 @@ def dynasty_of_location_prefix_option() -> str:
         while not dynasty_of_location_prefix:
             dynasty_of_location_prefix = input("Enter the dynasty_of_location_prefix, ie: dynnp_von")
     return dynasty_of_location_prefix
+
+
+def bastard_dynasty_prefix_option() -> str:
+    yn = None
+    while yn is None:
+        ynd = input("Do you want a bastard_dynasty_prefix? (y)/(n), (d) for description")
+        if ynd[:1].lower() == "y":
+            yn = True
+        elif ynd[:1].lower() == "d":
+            print("Property Description: \n"
+                  "Optional, Prefix for bastard dynasties ie: John 'Snow'")
+        else:
+            yn = False
+
+    bastard_dynasty_prefix = ""
+    if yn is True:
+        while not bastard_dynasty_prefix:
+            bastard_dynasty_prefix = input("Enter the bastard_dynasty_prefix, ie: snow")
+    return bastard_dynasty_prefix
 
 
 def founder_named_dynasties_option() -> bool:
@@ -278,7 +298,8 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
                      female_names: list[str], group_culture: str = None, graphical_cultures: list = None,
                      mercenary_names: list = None, ethnicities: list = None,
                      founder_named_dynasties: bool = None, dynasty_name_first: bool = None,
-                     dynasty_title_names: bool = None, dynasty_of_location_prefix: str = "") -> list[str]:
+                     dynasty_title_names: bool = None, dynasty_of_location_prefix: str = "",
+                     bastard_dynasty_prefix: str = "") -> list[str]:
     # Quick note about curly braces and strings. inside a normal string, curly braces are curly braces
     # However inside formatted strings (f'') and (f"") curly braces ({}) are special.
     # You can bypass the restrictions by doing a double curly brace ({{ or }})
@@ -343,6 +364,9 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
     # Dynasty of location prefix option
     if dynasty_of_location_prefix:
         output_lines.append(f"\t\tdynasty_of_location_prefix = \"{dynasty_of_location_prefix}\"")
+
+    if bastard_dynasty_prefix:
+        output_lines.append(f"\t\tbastard_dynasty_prefix = \"{bastard_dynasty_prefix}\"")
 
     # Patronym Options for later...
 
