@@ -1,6 +1,5 @@
 # Todo
 # todo actually allow write options
-# todo loop script after it's done
 # todo additional error checking
 # todo help documentation(py <script> help)
 # todo Patronyms???
@@ -25,6 +24,16 @@ output_path = os.path.join(cwd, output_path_folder)
 def main():
     # Check Python Version to make sure this script will run successfully
     check_python_version()
+    create_culture()
+    while True:
+        yn = input("Do you want to run the script again? (y)/(n)")
+        if yn[:1].lower() == "y":
+            create_culture()
+        else:
+            exit(0)
+
+
+def create_culture():
     # Checks that the script can actually run successfully
     (graphical_cultures_file, mercenary_names_file, dynasty_names_file,
      male_names_file, female_names_file) = check_input_files()
