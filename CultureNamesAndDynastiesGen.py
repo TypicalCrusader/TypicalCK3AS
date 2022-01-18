@@ -56,6 +56,7 @@ def create_culture():
     # Read female_names file
     female_names = read_input_file(female_names_file)
     # Ask for input on found_name_dynasties
+    dynasty_of_location_prefix = dynasty_of_location_prefix_option()
     founder_named_dynasties = founder_named_dynasties_option()
     dynasty_title_names = dynasty_title_names_option()
     dynasty_name_first = dynasty_name_first_option()
@@ -68,7 +69,8 @@ def create_culture():
                                     female_names, culture_group, graphical_cultures, mercenary_names,
                                     founder_named_dynasties=founder_named_dynasties,
                                     dynasty_title_names=dynasty_title_names,
-                                    dynasty_name_first=dynasty_name_first)
+                                    dynasty_name_first=dynasty_name_first,
+                                    dynasty_of_location_prefix=dynasty_of_location_prefix)
 
     # Write code to file
     write_to_file(output_lines, culture_group)
@@ -202,6 +204,26 @@ def get_culture_color() -> str:
     return culture_color
 
 
+def dynasty_of_location_prefix_option() -> str:
+    yn = None
+    while yn is None:
+        yn = input("Do you want a dynasty_of_location_prefix? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            yn = True
+        elif yn[:1].lower() == "d":
+            print("Property Description: \n"
+                  "Cultural equivalent of 'of', when followed by a placename, e.g "
+                  "- Geoffrey 'of' Monmouth, Chrétien 'de' Troyes (Christian 'of' Troyes)")
+        else:
+            yn = False
+
+    dynasty_of_location_prefix = ""
+    if yn is True:
+        while not dynasty_of_location_prefix:
+            dynasty_of_location_prefix = input("Enter the dynasty_of_location_prefix, ie: dynnp_von")
+    return dynasty_of_location_prefix
+
+
 def founder_named_dynasties_option() -> bool:
     founder_named_dynasties = None
     while founder_named_dynasties is None:
@@ -256,7 +278,7 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
                      female_names: list[str], group_culture: str = None, graphical_cultures: list = None,
                      mercenary_names: list = None, ethnicities: list = None,
                      founder_named_dynasties: bool = None, dynasty_name_first: bool = None,
-                     dynasty_title_names: bool = None) -> list[str]:
+                     dynasty_title_names: bool = None, dynasty_of_location_prefix: str = "") -> list[str]:
     # Quick note about curly braces and strings. inside a normal string, curly braces are curly braces
     # However inside formatted strings (f'') and (f"") curly braces ({}) are special.
     # You can bypass the restrictions by doing a double curly brace ({{ or }})
@@ -317,6 +339,10 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
     output_lines.append(f"\t\t\t{female_names}")
     output_lines.append("\t\t}")
     output_lines.append("")
+
+    # Dynasty of location prefix option
+    if dynasty_of_location_prefix:
+        output_lines.append(f"\t\tdynasty_of_location_prefix = \"{dynasty_of_location_prefix}\"")
 
     # Patronym Options for later...
 
