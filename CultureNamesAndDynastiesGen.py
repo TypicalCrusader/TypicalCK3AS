@@ -2,7 +2,6 @@
 # todo actually allow write options
 # todo additional error checking
 # todo help documentation(py <script> help)
-# todo Patronyms???
 # todo Something for ethnicities. Maybe ask if they want to do ethnicities, and have them type the item, then the weight
 # todo make name generation cutoff per line "smart" @ 115 characters max
 # todo Allow some sort of rng generation of mercenary company names
@@ -57,9 +56,9 @@ def create_culture():
     # Read dynasty_names file
     dynasty_names = read_input_file(dynasty_names_file)
     # Read male_names file
-    male_names = read_input_file(male_names_file)
+    male_names = read_input_file(male_names_file, split_at_spaces=True)
     # Read female_names file
-    female_names = read_input_file(female_names_file)
+    female_names = read_input_file(female_names_file, split_at_spaces=True)
     # Ask for input on found_name_dynasties
     dynasty_of_location_prefix = dynasty_of_location_prefix_option()
     bastard_dynasty_prefix = bastard_dynasty_prefix_option()
@@ -70,7 +69,7 @@ def create_culture():
     female_ancestor_names_chance = ancestor_name_options(Gender.female)
     male_patronyms = get_patronyms_options(Gender.male)
     female_patronyms = get_patronyms_options(Gender.female)
-    always_use_patronyms = always_use_patronyms_option();
+    always_use_patronyms = always_use_patronyms_option()
     # Ask for input on Ethnicities
     # ethnicities = get_ethnicities_options()
     # Generate code output for file
@@ -156,7 +155,7 @@ def check_or_create_culture_group():
         return culture_group, path_exists, append_override_new
 
 
-def read_input_file(filepath, strip=True, replace_spaces=False) -> list:
+def read_input_file(filepath, strip=True, replace_spaces=False, split_at_spaces=False) -> list:
     print(f"reading & formatting file: {filepath}")
     # Open the file and read the lines
     with open(filepath, 'r') as file:
@@ -165,6 +164,15 @@ def read_input_file(filepath, strip=True, replace_spaces=False) -> list:
     # Strip extra whitespace if argument key. Note doing this twice is "inefficient" but more readable
     if strip:
         lines = [line.strip() for line in lines]
+
+    # allow splitting at spaces for files like names which commonly are separated this way
+    if split_at_spaces:
+        split_lines = []
+        for line in lines:
+            words = line.split()
+            for word in words:
+                split_lines.append(word)
+        lines = split_lines
 
     if replace_spaces:
         lines = [line.replace(' ', '_') for line in lines]
