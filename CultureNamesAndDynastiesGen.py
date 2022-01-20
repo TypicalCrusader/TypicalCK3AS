@@ -11,11 +11,17 @@
 
 import sys
 import os
+from enum import Enum
 input_path_folder = 'culture_input'
 output_path_folder = 'culture_output'
 cwd = os.getcwd()
 input_path = os.path.join(cwd, input_path_folder)
 output_path = os.path.join(cwd, output_path_folder)
+
+
+class Gender(str, Enum):
+    male = "male"
+    female = "female"
 
 
 def main():
@@ -60,8 +66,11 @@ def create_culture():
     founder_named_dynasties = founder_named_dynasties_option()
     dynasty_title_names = dynasty_title_names_option()
     dynasty_name_first = dynasty_name_first_option()
-    # Ask for input on patronyms
-    # patronyms = get_patronyms_options()
+    male_ancestor_names_chance = ancestor_name_options(Gender.male)
+    female_ancestor_names_chance = ancestor_name_options(Gender.female)
+    male_patronyms = get_patronyms_options(Gender.male)
+    female_patronyms = get_patronyms_options(Gender.female)
+    always_use_patronyms = always_use_patronyms_option();
     # Ask for input on Ethnicities
     # ethnicities = get_ethnicities_options()
     # Generate code output for file
@@ -71,7 +80,12 @@ def create_culture():
                                     dynasty_title_names=dynasty_title_names,
                                     dynasty_name_first=dynasty_name_first,
                                     dynasty_of_location_prefix=dynasty_of_location_prefix,
-                                    bastard_dynasty_prefix=bastard_dynasty_prefix)
+                                    bastard_dynasty_prefix=bastard_dynasty_prefix,
+                                    male_ancestor_names_chance=male_ancestor_names_chance,
+                                    female_ancestor_names_chance=female_ancestor_names_chance,
+                                    male_patronym_options=male_patronyms,
+                                    female_patronym_options=female_patronyms,
+                                    always_use_patronyms=always_use_patronyms)
 
     # Write code to file
     write_to_file(output_lines, culture_group)
@@ -286,9 +300,87 @@ def dynasty_title_names_option() -> bool:
     return dynasty_title_names
 
 
-def get_patronyms_options():
-    pass
+def ancestor_name_options(gender: Gender) -> dict[str]:
+    # Final value to return, use for primary ask/description loop
+    use_ancestor_names_chance = None
+    # Check gender we're looking at end using description & values related to this
+    if gender == Gender.male:
+        gender_parent_descriptor = "father"
+    else:
+        gender_parent_descriptor = "mother"
 
+    while use_ancestor_names_chance is None:
+        yn = input(f"Do you want to set up {gender} ancestor name chance? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            use_ancestor_names_chance = True
+        elif yn[:1].lower() == "d":
+            print(f"Chance of {gender} children being named after their paternal or maternal "
+                  f"grand{gender_parent_descriptor}, or their {gender_parent_descriptor}. "
+                  f"Sum must not exceed 100")
+        else:
+            use_ancestor_names_chance = {}
+    if use_ancestor_names_chance:
+        pat_grd_name_chance = None
+        while not pat_grd_name_chance:
+            pat_grd_name_chance = input(f"Enter paternal grand{gender_parent_descriptor} name % chance")
+        mat_grd_name_chance = None
+        while not mat_grd_name_chance:
+            mat_grd_name_chance = input(f"Enter maternal grand{gender_parent_descriptor} name % chance")
+        parent_name_chance = None
+        while not parent_name_chance:
+            parent_name_chance = input(f"Enter {gender_parent_descriptor} name % chance")
+        use_ancestor_names_chance = {
+            "pat_grd_name_chance": pat_grd_name_chance,
+            "mat_grd_name_chance": mat_grd_name_chance,
+            "parent_name_chance": parent_name_chance
+        }
+    return use_ancestor_names_chance
+
+
+def get_patronyms_options(gender: Gender) -> dict[str]:
+    use_patronyms = None
+    while use_patronyms is None:
+        yn = input(f"Do you want to set up {gender} patronym localizations? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            use_patronyms = True
+        elif yn[:1].lower() == "d":
+            print(f"Names after the primary {gender} parent. "
+                  f"Can use both prefix and suffix together ie: '(Mc)David(son)'. "
+                  f"Vowel is used for when the {gender} parent's name starts with a vowel.")
+        else:
+            use_patronyms = {}
+
+        if use_patronyms:
+            use_patronyms = {}
+            patronym_prefix = input(f"Enter a patronym prefix for "
+                                    f"{gender} parent localization ie: '{gender[0]}_patronym'. "
+                                    f"Press Enter to skip this value")
+            patronym_prefix_vowel = input(f"Enter a patronym prefix vowel for "
+                                          f"{gender} parent localization ie: '{gender[0]}v_patronym'. "
+                                          f"Press Enter to skip this value")
+            patronym_suffix = input(f"Enter a patronym suffix  for "
+                                    f"{gender} parent localization ie: '{gender[0]}_patronym_s'. "
+                                    f"Press Enter to skip this value")
+            use_patronyms["patronym_prefix"] = patronym_prefix
+            use_patronyms["patronym_prefix_vowel"] = patronym_prefix_vowel
+            use_patronyms["patronym_suffix"] = patronym_suffix
+
+    return use_patronyms
+
+
+def always_use_patronyms_option() -> bool:
+    always_use_patronyms = None
+    while always_use_patronyms is None:
+        yn = input("Do you want to always use patronyms? (y)/(n), (d) for description")
+        if yn[:1].lower() == "y":
+            always_use_patronyms = True
+        elif yn[:1].lower() == "d":
+            print("Property Description:\n"
+                  "Optional (default is no), whether or not a culture always displays Patronyms. "
+                  "(Patronyms can also be turned on from government/liege's government)")
+        else:
+            always_use_patronyms = False
+    return always_use_patronyms
 
 def get_ethnicities_options():
     pass
@@ -299,7 +391,9 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
                      mercenary_names: list = None, ethnicities: list = None,
                      founder_named_dynasties: bool = None, dynasty_name_first: bool = None,
                      dynasty_title_names: bool = None, dynasty_of_location_prefix: str = "",
-                     bastard_dynasty_prefix: str = "") -> list[str]:
+                     bastard_dynasty_prefix: str = "", male_ancestor_names_chance: dict[str]= {},
+                     female_ancestor_names_chance: dict[str]= {}, male_patronym_options: dict[str] = {},
+                     female_patronym_options: dict[str] = {}, always_use_patronyms: bool = False) -> list[str]:
     # Quick note about curly braces and strings. inside a normal string, curly braces are curly braces
     # However inside formatted strings (f'') and (f"") curly braces ({}) are special.
     # You can bypass the restrictions by doing a double curly brace ({{ or }})
@@ -368,7 +462,42 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
     if bastard_dynasty_prefix:
         output_lines.append(f"\t\tbastard_dynasty_prefix = \"{bastard_dynasty_prefix}\"")
 
-    # Patronym Options for later...
+    # Ancestor parental name chances
+    if male_ancestor_names_chance:
+        output_lines.append(f"\t\tpat_grf_name_chance = {male_ancestor_names_chance['pat_grd_name_chance']}")
+        output_lines.append(f"\t\tmat_grf_name_chance = {male_ancestor_names_chance['mat_grd_name_chance']}")
+        output_lines.append(f"\t\tfather_name_chance = {male_ancestor_names_chance['parent_name_chance']}")
+
+    if female_ancestor_names_chance:
+        output_lines.append(f"\t\tpat_grm_name_chance = {female_ancestor_names_chance['pat_grd_name_chance']}")
+        output_lines.append(f"\t\tmat_grm_name_chance = {female_ancestor_names_chance['mat_grd_name_chance']}")
+        output_lines.append(f"\t\tmother_name_chance = {female_ancestor_names_chance['parent_name_chance']}")
+
+    # Patronym Name Options
+    if male_patronym_options:
+        if male_patronym_options["patronym_prefix"]:
+            output_lines.append(f"\t\tpatronym_prefix_male = "
+                                f"\"{male_patronym_options['patronym_prefix']}\"")
+        if male_patronym_options["patronym_prefix_vowel"]:
+            output_lines.append(f"\t\tpatronym_prefix_male_vowel = "
+                                f"\"{male_patronym_options['patronym_prefix_vowel']}\"")
+        if male_patronym_options["patronym_suffix"]:
+            output_lines.append(f"\t\tpatronym_suffix_male = "
+                                f"\"{male_patronym_options['patronym_suffix']}\"")
+
+    if female_patronym_options:
+        if female_patronym_options["patronym_prefix"]:
+            output_lines.append(f"\t\tpatronym_prefix_female = "
+                                f"\"{female_patronym_options['patronym_prefix']}\"")
+        if female_patronym_options["patronym_prefix_vowel"]:
+            output_lines.append(f"\t\tpatronym_prefix_female_vowel = "
+                                f"\"{female_patronym_options['patronym_prefix_vowel']}\"")
+        if female_patronym_options["patronym_suffix"]:
+            output_lines.append(f"\t\tpatronym_suffix_female = "
+                                f"\"{female_patronym_options['patronym_suffix']}\"")
+
+    if always_use_patronyms:
+        output_lines.append(f"\t\talways_use_patronym = yes")
 
     # Name display options
     if founder_named_dynasties:
@@ -424,3 +553,4 @@ def check_python_version() -> None:
 
 if __name__ == "__main__":
     main()
+
