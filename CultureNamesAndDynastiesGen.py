@@ -1,7 +1,6 @@
 # Todo
-# todo actually allow write options
+# todo fix "new file" writing
 # todo additional error checking
-# todo help documentation(py <script> help)
 # todo Something for ethnicities. Maybe ask if they want to do ethnicities, and have them type the item, then the weight
 # todo make name generation cutoff per line "smart" @ 115 characters max
 # todo Allow some sort of rng generation of mercenary company names
@@ -75,6 +74,7 @@ def create_culture():
     # Generate code output for file
     output_lines = get_output_lines(culture_name, culture_color, dynasty_names, male_names,
                                     female_names, culture_group, graphical_cultures, mercenary_names,
+                                    write_mode=path_append_override_new,
                                     founder_named_dynasties=founder_named_dynasties,
                                     dynasty_title_names=dynasty_title_names,
                                     dynasty_name_first=dynasty_name_first,
@@ -87,7 +87,7 @@ def create_culture():
                                     always_use_patronyms=always_use_patronyms)
 
     # Write code to file
-    write_to_file(output_lines, culture_group)
+    write_to_file(output_lines, culture_group, path_exists, path_append_override_new)
 
 
 def check_input_files():
@@ -148,8 +148,8 @@ def check_or_create_culture_group():
     # If it does exist...Ask the user if they want to append, override, or create a new file
     else:
         append_override_new = input('Do you want to (a)ppend, (o)verride, or create a (n)ew file?')
-        while (append_override_new[:1] != "a" or append_override_new[:1] != "o" or
-               append_override_new[:1] != "n"):
+        while ('a' not in append_override_new[:1] and 'o' not in append_override_new[:1] and
+               'n' not in append_override_new[:1]):
             print(f"Invalid Input: {append_override_new}")
             append_override_new = input('Do you want to (a)ppend, (o)verride, or create a (n)ew file?')
         return culture_group, path_exists, append_override_new
@@ -396,37 +396,39 @@ def get_ethnicities_options():
 
 def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[str], male_names: list[str],
                      female_names: list[str], group_culture: str = None, graphical_cultures: list = None,
-                     mercenary_names: list = None, ethnicities: list = None,
+                     mercenary_names: list = None, write_mode: str = "", ethnicities: list = None,
                      founder_named_dynasties: bool = None, dynasty_name_first: bool = None,
                      dynasty_title_names: bool = None, dynasty_of_location_prefix: str = "",
                      bastard_dynasty_prefix: str = "", male_ancestor_names_chance: dict[str]= {},
-                     female_ancestor_names_chance: dict[str]= {}, male_patronym_options: dict[str] = {},
+                     female_ancestor_names_chance: dict[str] = {}, male_patronym_options: dict[str] = {},
                      female_patronym_options: dict[str] = {}, always_use_patronyms: bool = False) -> list[str]:
     # Quick note about curly braces and strings. inside a normal string, curly braces are curly braces
     # However inside formatted strings (f'') and (f"") curly braces ({}) are special.
     # You can bypass the restrictions by doing a double curly brace ({{ or }})
     output_lines = []
 
-    # Group Culture
-    if group_culture:
-        # noinspection PyArgumentList
-        output_lines.append(f"{group_culture}_group = {{")
+    # Check to see if we're appending an existing file. If so, we can skip culture_group levelitems
+    if 'a' not in write_mode:
+        # Group Culture
+        if group_culture:
+            # noinspection PyArgumentList
+            output_lines.append(f"{group_culture}_group = {{")
 
-    # Graphical Cultures
-    output_lines.append("\tgraphical_cultures = {")
-    if graphical_cultures:
-        for item in graphical_cultures:
-            output_lines.append(f"\t\t{item}")
-    output_lines.append("\t}")
-    output_lines.append("")
-
-    # Mercenary names
-    if mercenary_names:
-        output_lines.append("\tmercenary_names = {")
-        for item in mercenary_names:
-            output_lines.append(f"\t\t{{ name = \"{item}\" }}")
+        # Graphical Cultures
+        output_lines.append("\tgraphical_cultures = {")
+        if graphical_cultures:
+            for item in graphical_cultures:
+                output_lines.append(f"\t\t{item}")
         output_lines.append("\t}")
         output_lines.append("")
+
+        # Mercenary names
+        if mercenary_names:
+            output_lines.append("\tmercenary_names = {")
+            for item in mercenary_names:
+                output_lines.append(f"\t\t{{ name = \"{item}\" }}")
+            output_lines.append("\t}")
+            output_lines.append("")
 
     # Culture
     output_lines.append(f"\t{culture_name} = {{")
@@ -525,9 +527,12 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
         output_lines.append("\t\t}")
         output_lines.append("")
 
-    # File End
+    # End of culture
     output_lines.append("\t}")
-    output_lines.append("}")
+
+    # End of culture group, if we're not appending to an existing file
+    if 'a' not in write_mode:
+        output_lines.append("}")
 
     # Add newlines so I don't have to
     output_lines = [line+"\n" for line in output_lines]
@@ -535,11 +540,53 @@ def get_output_lines(culture_name: str, culture_color: str, dynasty_names: list[
     return output_lines
 
 
-def write_to_file(output_list: list[str], file_name: str):
-    output_file = os.path.join(output_path, file_name + ".txt")
-    with open(output_file, 'w') as file:
-        file.writelines(output_list)
-    print(f"{output_file} written!")
+def write_to_file(output_lines: list[str], file_name: str, path_exists: bool, write_option: str):
+    file_name = os.path.join(output_path, file_name + ".txt")
+
+    # if the user wants to create a new file using the same culture, add a number to it
+    if write_option == 'n':
+        file_digit = 0
+        # split the filename by _ to see if there's #'s at the end
+        split_output_file_name = file_name.split('_')
+        # See if there actually is #s at the end
+        if split_output_file_name[len(split_output_file_name)-1].isdigit():
+            # store this digit
+            file_digit = int(split_output_file_name[len(split_output_file_name) - 1])
+
+        if file_digit:
+            file_name = split_output_file_name[0] + '_' + str(file_digit + 1)
+        else:
+            file_name += '_1'
+
+    # This is to bypass using seek and bytes
+    if write_option == 'a':
+        # Open for reading at the start of the file.
+        with open(file_name, 'r') as file:
+            # Read the lines
+            old_lines = file.readlines()
+            # Declare variable to find in the loop
+            last_curly_brace_index = None
+            # Loop to find the line index of the last curly brace
+            for index, line in enumerate(old_lines):
+                # FIND THE CLOSING CURLY BRACE
+                if '}' in line:
+                    # It doesn't matter that it'll find every one, it'll only keep the last one
+                    last_curly_brace_index = index
+            # Get the index to insert the output lines into the file
+            insert_index = last_curly_brace_index
+            # create the new_lines list for name sanity
+            new_lines = old_lines
+            # Slice the output_lines into the list
+            new_lines[insert_index:insert_index] = output_lines
+            # set output_lines to the new_lines list that was updated for later writing
+            output_lines = new_lines
+
+    # We don't have to care about what was in the file so throw it away and write a new file
+    with open(file_name, 'w') as file:
+        # Finally write the file
+        file.writelines(output_lines)
+    # Let the user know
+    print(f"{file_name} written!")
 
 
 def is_float(string) -> bool:
